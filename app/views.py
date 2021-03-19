@@ -6,7 +6,9 @@ This file creates your application.
 """
 
 from app import app
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for,flash, send_from_directory
+from werkzeug.utils import secure_filename
+from .forms import CreateProperty
 
 
 ###
@@ -22,8 +24,52 @@ def home():
 @app.route('/about/')
 def about():
     """Render the website's about page."""
-    return render_template('about.html', name="Mary Jane")
+    return render_template('about.html', name="Real Estate")
 
+
+@app.route('/property', methods=['POST'])
+def property():
+    createproperty = CreateProperty()
+    if request.method == "POST":
+        if createproperty.validate_on_submit():
+            try:
+                file = request.files['photo']
+                filename = secure_filename(file.filename)
+                filename = reduce_filename(filename)
+                property = Property(request.form['title'], request.form['description'], request.form['numofbeds'], request.form['numofbaths'], request.form['price'], request.form['type'], request.form['location'], filename)
+                db.session.add(property)
+                db.session.commit()
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                flash('Sucessfully Added Property', 'success')
+                return redirect(url_for('properties'))
+            except:
+                flash('Error Adding Property', 'danger')
+                return redirect(url_for('home')) 
+        flash_errors(createproperty)
+    return render_template('property.html', form=createproperty)
+
+@app.route("/property/<propertyid>")
+def get_property(propertyid):
+    property = db.session.query(Property).get(propertyid)
+    return render_template('sproperty.html', place=property)
+
+@app.route('/properties')
+def properties():
+    items = db.session.query(Property).all()
+    return render_template('properties.html', items=items)
+
+@app.route('/uploads/<filename>')
+def get_image(filename):
+    root_dir = os.getcwd()
+    return send_from_directory(os.path.join(root_dir, app.config['UPLOAD_FOLDER']), filename)
+
+def reduce_filename(filename):
+    extension = filename[-4:]
+    main =  filename[:-4]
+    if len(main) > 255:
+        main = main[:250]
+    return main + extension
+   
 
 ###
 # The functions below should be applicable to all Flask apps.
