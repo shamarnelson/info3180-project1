@@ -27,49 +27,32 @@ def about():
     return render_template('about.html', name="Real Estate")
 
 
-@app.route('/property', methods=['POST'])
-def property():
-    createproperty = CreateProperty()
-    if request.method == "POST":
-        if createproperty.validate_on_submit():
-            try:
-                file = request.files['photo']
-                filename = secure_filename(file.filename)
-                filename = reduce_filename(filename)
-                property = Property(request.form['title'], request.form['description'], request.form['numofbeds'], request.form['numofbaths'], request.form['price'], request.form['type'], request.form['location'], filename)
-                db.session.add(property)
-                db.session.commit()
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                flash('Sucessfully Added Property', 'success')
-                return redirect(url_for('properties'))
-            except:
-                flash('Error Adding Property', 'danger')
-                return redirect(url_for('home')) 
-        flash_errors(createproperty)
-    return render_template('property.html', form=createproperty)
-
-@app.route("/property/<propertyid>")
-def get_property(propertyid):
-    property = db.session.query(Property).get(propertyid)
-    return render_template('sproperty.html', place=property)
+@app.route('/property', methods=['GET', 'POST'])
+def newProperty():
+    """ displays form for new property"""
+    form = CreateProperty
+    
+    if request.method == 'POST' and form.validate_on_submit():
+        title = form.title.data 
+        numofbeds = form.numofbeds.data
+        numofbaths = form.numbaths.data
+        description = form.description.data
+        propertyType = form.propertyType.data
+        photo = form.photo.data
+        flash(' Form Submitted!')
+        return render_template('property_page', title=title, num_bedrooms=numofbeds,
+        num_bathrooms=numofbaths, desc=description, types=propertyType, photo=photo)  
+    return render_template('new_property.html', form=form)      
 
 @app.route('/properties')
 def properties():
-    items = db.session.query(Property).all()
-    return render_template('properties.html', items=items)
+    """ list of all properties in grid fashion"""
+    
 
-@app.route('/uploads/<filename>')
-def get_image(filename):
-    root_dir = os.getcwd()
-    return send_from_directory(os.path.join(root_dir, app.config['UPLOAD_FOLDER']), filename)
-
-def reduce_filename(filename):
-    extension = filename[-4:]
-    main =  filename[:-4]
-    if len(main) > 255:
-        main = main[:250]
-    return main + extension
-   
+@app.route('/property/<propertyid>')
+def property_page(propertyid):
+    """ viewing individual property via property ID """
+    return Property.query.get(int(propertyid))
 
 ###
 # The functions below should be applicable to all Flask apps.
