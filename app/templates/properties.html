@@ -1,0 +1,41 @@
+{%extends 'base.html'%}
+
+{% block main%}
+
+<h1 class="heading">Properties</h1>
+{% include "flash_msgs.html"%}
+
+
+
+<div class="grid_layout1">
+  
+    
+{% for user in property %}
+<div class="card">
+ 
+
+<img class="img" src = "{{url_for('get_image',filename=user.photo_name)}}">
+    <div class ="card-title">
+    {{user.title}}
+    </div>
+    <div class="icons">
+    <p ><img class="iconp" src="{{url_for('static', filename='loc.png')}}"/>{{user.location}}</p>
+    </div>
+    <div class="prices">
+    {{user.pric}}
+    <br>
+    
+    </div>
+    <br>
+    <a href="{{ url_for('user_pro', propertyid=user.id) }}" class="viewbutton">View Property</a>
+    
+
+        
+            
+</div>
+            {%endfor %}
+   
+    </div>
+
+
+{% endblock%}

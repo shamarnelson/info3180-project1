@@ -5,10 +5,13 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 
-from app import app
+from app import app, db
 from flask import render_template, request, redirect, url_for,flash, send_from_directory
 from werkzeug.utils import secure_filename
-from .forms import CreateProperty
+from .forms import PropertyForm
+from app.models import UserProperty
+from flask import send_from_directory
+import os
 
 
 ###
@@ -30,7 +33,7 @@ def about():
 @app.route('/property', methods=['GET', 'POST'])
 def newProperty():
     """ displays form for new property"""
-    form = CreateProperty
+    form = PropertyForm
     
     if request.method == 'POST' and form.validate_on_submit():
         title = form.title.data 
@@ -39,20 +42,43 @@ def newProperty():
         description = form.description.data
         propertyType = form.propertyType.data
         photo = form.photo.data
-        flash(' Form Submitted!')
-        return render_template('property_page', title=title, num_bedrooms=numofbeds,
-        num_bathrooms=numofbaths, desc=description, types=propertyType, photo=photo)  
-    return render_template('new_property.html', form=form)      
+        price = form.price.data
+        filename = secure_filename(photo.filename)
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+        userproperty= UserProperty(title,description,numofbaths,numofbeds,propertyType,price,filename)
+        db.session.add(userproperty)
+        db.session.commit()
+        flash(' Form Submitted!', category= "sucesss")
+        return redirect(url_for('properties'))
+    return render_template('property.html', form=form)  
 
-@app.route('/properties')
+def get_uploaded_images():
+    rootdir=os.getcwd()
+    lst=[]
+    print (rootdir)
+    for subdir, dirs, files in os.walk(rootdir + '/uploads'):
+        for file in files:
+          lst.append(file)
+    lst.pop(0)
+    return lst
+
+@app.route('/upload/<filename>')
+def get_image(filename):
+    root_dir=os.getcwd()
+    return send_from_directory(os.path.join(root_dir,app.config['UPLOAD_FOLDER']),filename)
+
+
+@app.route("/properties")
 def properties():
-    """ list of all properties in grid fashion"""
-    
+    users= db.session.query(UserProperty).all()
+    return render_template("properties.html", property= users )
+   
 
 @app.route('/property/<propertyid>')
-def property_page(propertyid):
-    """ viewing individual property via property ID """
-    return Property.query.get(int(propertyid))
+def user_pro(propertyid):
+    userprop= UserProperty.query.filter_by(id=propertyid).first()
+    return render_template("userproperty.html", userpro= userpro)
+
 
 ###
 # The functions below should be applicable to all Flask apps.

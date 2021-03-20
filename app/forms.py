@@ -3,12 +3,12 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField,TextAreaField,SelectField
 
 from wtforms.validators import InputRequired
-class CreateProperty(FlaskForm):
+class PropertyForm(FlaskForm):
     title = StringField('Property Title', validators=[InputRequired()])
-    numofbeds = StringField('No. of Rooms', validators=[InputRequired()], render_kw={"placeholder":"3"})
-    numofbaths = StringField('No. of Bathrooms', validators=[InputRequired()], render_fw={"placeholder":"2"})
-    location = StringField('Location', validators=[InputRequired()], render_kw={"placeholder":"10 Waterloo Rd"})
-    price = StringField('Price', validators=[InputRequired()], render_fw={"placeholder":"15,000,000"})
+    numofbeds = StringField('No. of Rooms', validators=[InputRequired()])
+    numofbaths = StringField('No. of Bathrooms', validators=[InputRequired()])
+    location = StringField('Location', validators=[InputRequired()])
+    price = StringField('Price', validators=[InputRequired()])
     propertyType  = SelectField('Property Type',choices=[('House','House'),('Apartment','Apartment')])
     description = TextAreaField('Description',validators=[InputRequired()])
     photo = FileField('Photo',validators=[FileRequired(),FileAllowed(['jpg','jpeg','png',"Browse"])])
