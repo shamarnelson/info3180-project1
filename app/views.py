@@ -9,8 +9,7 @@ from app import app, db
 from flask import render_template, request, redirect, url_for,flash, send_from_directory
 from werkzeug.utils import secure_filename
 from .forms import PropertyForm
-from app.models import UserProperty
-from flask import send_from_directory
+from .models import UserProperty
 import os
 
 
@@ -31,7 +30,7 @@ def about():
 
 
 @app.route('/property', methods=['GET', 'POST'])
-def newProperty():
+def property():
     """ displays form for new property"""
     form = PropertyForm
     
@@ -49,7 +48,7 @@ def newProperty():
         db.session.add(userproperty)
         db.session.commit()
         flash(' Form Submitted!', category= "sucesss")
-        return redirect(url_for('properties'))
+        return redirect(url_for('property'))
     return render_template('property.html', form=form)  
 
 def get_uploaded_images():
@@ -77,7 +76,7 @@ def properties():
 @app.route('/property/<propertyid>')
 def user_pro(propertyid):
     userprop= UserProperty.query.filter_by(id=propertyid).first()
-    return render_template("userproperty.html", userpro= userpro)
+    return render_template("userproperty.html", userpro= UserProperty)
 
 
 ###
