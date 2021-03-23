@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField,TextAreaField,SelectField,SubmitField
+from wtforms import StringField,SelectField,SubmitField
 
 from wtforms.validators import DataRequired
 class PropertyForm(FlaskForm):
@@ -10,7 +10,7 @@ class PropertyForm(FlaskForm):
     location = StringField('Location', validators=[DataRequired()])
     price = StringField('Price', validators=[DataRequired()])
     propertyType  = SelectField('Property Type',choices=[('house','House'),('apartment','Apartment')])
-    description = TextAreaField('Description',validators=[DataRequired()], render_fw={"rows": 8, "cols": 50})
+    description = StringField('Description',validators=[DataRequired()])
     photo = FileField('Photo',validators=[FileRequired(),FileAllowed(['jpg','jpeg','png'],"Browse")])
 
     
