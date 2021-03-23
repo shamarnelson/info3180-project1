@@ -6,10 +6,11 @@ This file creates your application.
 """
 
 from app import app, db
-from flask import render_template, request, redirect, url_for,flash, send_from_directory
+from flask import render_template, request, redirect, url_for,flash
 from werkzeug.utils import secure_filename
-from .forms import PropertyForm
-from .models import UserProperty
+from app.forms import PropertyForm
+from app.models import PropertyModel
+from flask.helpers import send_from_directory
 import os
 
 
@@ -28,56 +29,63 @@ def about():
     """Render the website's about page."""
     return render_template('about.html', name="Real Estate")
 
-
 @app.route('/property', methods=['GET', 'POST'])
-def property():
-    """ displays form for new property"""
-    form = PropertyForm
-    
-    if request.method == 'POST' and form.validate_on_submit():
-        title = form.title.data 
-        numofbeds = form.numofbeds.data
-        numofbaths = form.numbaths.data
-        description = form.description.data
-        propertyType = form.propertyType.data
-        photo = form.photo.data
-        price = form.price.data
-        filename = secure_filename(photo.filename)
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
-        userproperty= UserProperty(title,description,numofbaths,numofbeds,propertyType,price,filename)
-        db.session.add(userproperty)
-        db.session.commit()
-        flash(' Form Submitted!', category= "sucesss")
-        return redirect(url_for('property'))
-    return render_template('property.html', form=form)  
+def add_property():
+    """Form for adding properties"""
 
-def get_uploaded_images():
-    rootdir=os.getcwd()
-    lst=[]
-    print (rootdir)
-    for subdir, dirs, files in os.walk(rootdir + '/uploads'):
-        for file in files:
-          lst.append(file)
-    lst.pop(0)
-    return lst
+    # Initialize the property form
+    form = PropertyForm()
 
-@app.route('/upload/<filename>')
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            title = form.title.data
+            description = form.description.data
+            num_of_beds = form.num_of_beds.data
+            num_of_baths = form.num_of_baths.data
+            price = form.price.data
+            location = form.location.data
+            propertyType = form.propertyType.data
+            photo = form.photo.data
+            photo_path = secure_filename(photo.filename)
+            path_joined = os.path.join(app.config['UPLOAD_FOLDER'], photo_path)
+            print(path_joined)
+            photo.save(path_joined)
+
+            property_model = PropertyModel(
+                title=title,
+                description=description,
+                num_of_beds=num_of_beds,
+                num_of_baths=num_of_baths,
+                price=price,
+                location=location,
+                propertyType=propertyType,
+                photo_path=photo_path)
+
+            db.session.add(property_model)
+            db.session.commit()
+
+            # Redirect to properties page
+            flash('Property successfully saved', 'success')
+            return redirect(url_for('get_properties'))
+        flash_errors(form)
+    return render_template('property.html', form=form)
+
+
+@app.route('/properties')
+def get_properties():
+    properties = PropertyModel.query.all()
+    return render_template('properties.html', properties=properties)
+
+@app.route("/property/<property_id>")
+def view_property(property_id):
+    prop = PropertyModel.query.filter_by(id=property_id).first()
+    return render_template("userProperty.html", prop=prop)
+
+@app.route('/uploads/<filename>')
 def get_image(filename):
-    root_dir=os.getcwd()
-    return send_from_directory(os.path.join(root_dir,app.config['UPLOAD_FOLDER']),filename)
-
-
-@app.route("/properties")
-def properties():
-    users= db.session.query(UserProperty).all()
-    return render_template("properties.html", property= users )
-   
-
-@app.route('/property/<propertyid>')
-def user_pro(propertyid):
-    userprop= UserProperty.query.filter_by(id=propertyid).first()
-    return render_template("userproperty.html", userpro= UserProperty)
-
+    upload_dir = app.config.get('UPLOAD_FOLDER')
+    print(upload_dir)
+    return send_from_directory(upload_dir, filename=filename)
 
 ###
 # The functions below should be applicable to all Flask apps.

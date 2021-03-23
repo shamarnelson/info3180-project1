@@ -1,48 +1,45 @@
 from . import db
+import enum
+from sqlalchemy import Integer, Enum
 
 
-class UserProperty(db.Model):
-    
-    __tablename__ = 'user_property'
+class PropertyTypes(enum.Enum):
+    """Defines the property types."""
+    apartment = 'apartment'
+    house = 'house'
 
-    id = db.Column(db.Integer, primary_key=True, unique=True)
-    title = db.Column(db.String(80))
-    description = db.Column(db.String(255))
-    numofbed= db.Column(db.String(80))
-    numofbath = db.Column(db.String(30))
-    price = db.Column(db.String(80))
-    propertytype = db.Column(db.String(29))
-    location = db.Column(db.String(225))
-    photo=db.Column(db.String(225), index=True)
-    
-    
-    
-    def __init__(self, title, description, numofbed, numofbath, price, propertytype, location, photo):
+
+class PropertyModel(db.Model):
+    """The model for a housing property."""
+
+    __tablename__ = 'properties'
+
+    # Defining attributes
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    num_of_beds = db.Column(db.Integer)
+    description = db.Column(db.String(500))
+    num_of_baths = db.Column(db.Integer)
+    location = db.Column(db.String(100))
+    price = db.Column(db.Numeric(10, 2))
+    photo = db.Column(db.String(255))
+    propertyType = db.Column(Enum(PropertyTypes))
+
+    # Initializing the Model, **kwargs is used to accept all arguments given
+    def __init__(
+            self, title, num_of_beds, num_of_baths, description,
+            price, location, propertyType, photo):
+
+        super().__init__()
+
         self.title = title
+        self.num_of_beds = num_of_beds
+        self.num_of_baths = num_of_baths
         self.description = description
-        self.numofbed = numofbed
-        self.numofbath = numofbath
+        self.num_of_beds = num_of_beds
+        self.num_of_baths = num_of_baths
         self.price = price
         self.propertytype = propertytype
         self.location = location
-        self.photo=photo
-
-
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2 support
-        except NameError:
-            return str(self.id)  # python 3 support
-
-    def __repr__(self):
-        return '<User %r>' % (self.username)
+        self.propertyType = propertyType
+        self.photo= photo

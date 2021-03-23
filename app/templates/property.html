@@ -1,69 +1,42 @@
-{% extends "base.html" %}
-{% block main %}
-
-
-<h1 class="heading">Add New Property</h1>
-<br>
-<form action="{{url_for('property')}}" method='POST' enctype = "multipart/form-data"> 
-    {{ form.csrf_token }} 
-    <form class="formc">
-        <div class="row">
-     <div class="col-8">
-         {{ form.title.label }} 
-         {{ form.title(class='form-control') }} 
-         
-     </div> 
-     <br>
-     
-
-     <div class="col-sm-8">
-         {{ form.description.label }}
-         {{ form.description(class='form-control') }}
-         
-         
-     </div> 
+{% extends "base.html" %} {% block main %}
+<!-- -->
+<h1 class="prop-header">Add New Property</h1>
+<form
+  action="{{ url_for('add_property') }}"
+  method="post"
+  enctype="multipart/form-data"
+>
+  <div id="form-wrapper">
+    {{ form.csrf_token }}
+    <div class="form-group long-field">
+      {{ form.title.label }}
+      <!-- -->
+      {{ form.title(required='required') }}
     </div>
-    <br>
-     
-     <div class="row">
-     <div class="col-md-4">
-         {{ form.numofbeds.label }} 
-         {{ form.numofbeds(class='form-control',placeholder="3" )}}
-     </div> 
-     <br>
-     <div class="col-md-4">
-         {{ form.numofbaths.label }}
-         {{ form.numofbaths(class='form-control', placeholder="2") }}
-     </div> 
-     </div>
-     <br>
-     <div class="row">
-     <div class="col-md-4">
-         {{ form.price.label }} 
-         {{ form.price(class='form-control', placeholder="15,000,000") }}
-     </div> 
-     <br>
-     <div class="col-md-4">
-         {{ form.propertyType.label }}
-         {{ form.propertyType( class='form-control', placeholder= "Select Property Type") }}
-     </div> 
-     </div>
-     <br>
-     <div class="row">
-     <div class="col-md-4">
-         {{ form.location.label }}
-         {{ form.location(class='form-control', placeholder = "10 Waterloo Road ") }}    
-     </div>
-     </div>  
-     <br>
-     <div class="row">
-     <div class="col-md-4">
-        {{ form.photo.label }}
-        {{ form.photo(class='form-control') }}    
-     </div>
-     </div>
-    <br> 
-
-     <button type="submit" name="submit" id="btn">Add Property</button> 
+    <div class="form-group">
+      {{ form.description.label }} {{ form.description(required='required') }}
+    </div>
+    <div class="form-group double-field">
+      <div>
+        {{ form.num_of_beds.label }} {{ form.num_of_beds(required='required') }}
+      </div>
+      <!-- -->
+      <div>
+        {{ form.num_of_baths.label }} {{ form.num_of_baths(required='required')
+        }}
+      </div>
+    </div>
+    <div class="form-group double-field">
+      <div>{{ form.price.label }}{{ form.price}}</div>
+      <!-- -->
+      <div>{{ form.propertyType.label }}{{form.propertyType}}</div>
+    </div>
+    <div class="form-group short-field">
+      {{form.location.label}} {{form.location}}
+    </div>
+    <div>{{ form.photo.label }} {{ form.photo }}</div>
+    <div>{{ form.submit}}</div>
+  </div>
 </form>
-    {% endblock %}
+<!-- -->
+{% endblock %}
