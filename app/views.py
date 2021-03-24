@@ -59,7 +59,7 @@ def add_property():
                 price=price,
                 location=location,
                 propertyType=propertyType,
-                photo_path=photo_path)
+                path_joined=path_joined)
 
             db.session.add(property_model)
             db.session.commit()
