@@ -14,4 +14,4 @@ class PropertyForm(FlaskForm):
     photo = FileField('Photo',validators=[FileRequired(),FileAllowed(['jpg','jpeg','png'],"Browse")])
 
     
-submit = SubmitField("Add Property")
+    submit = SubmitField("Add Property")
